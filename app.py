@@ -72,6 +72,62 @@ subject = st.selectbox(
 )
 
 theme = st.text_input("Enter Theme (e.g., Innovation)")
+if st.button("Find Collection"):
+    if not OPENAI_API_KEY:
+        st.error("OpenAI API key not found. Cannot generate book list.")
+    else:
+        st.success(f"Generated book list for Grade {grade}, Subject: {subject}, Theme: {theme}")
+
+        query = f"Find books for {grade} students about {theme} in {subject}."
+        response = get_response(query, retriever)
+
+        st.subheader("📚 Book List Found:")
+        st.write(response)
+
+        st.subheader("📚 AI-Generated Lesson Plan Idea:")
+        st.write(f"Create a lesson using books about {theme} for {grade} students focusing on {subject} concepts.")
+
+        st.info(f"Search Saved: Grade={grade}, Subject={subject}, Theme={theme}")
+        # Save user input into session state
+        st.session_state.user_submissions.append({
+            "grade": grade,
+            "subject": subject,
+            "theme": theme,
+            "submission_number": len(st.session_state.user_submissions) + 1
+        })
+if "user_submissions" not in st.session_state:
+    st.session_state.user_submissions = []
+    
+if st.session_state.user_submissions:
+    # Clear Submissions Button
+    if st.button("🧹 Clear Submission History"):
+        st.session_state.user_submissions = []
+        st.success("Submission history cleared! 🚀")
+
+    df = pd.DataFrame(st.session_state.user_submissions)
+
+    # Create a combined column "Grade - Subject - Theme" to better label submissions
+    df["request_info"] = df["grade"] + " | " + df["subject"] + " | " + df["theme"]
+
+    # Set request_info as X-axis and submission number as Y-axis
+    st.subheader("📈 Submission Requests Over Time")
+    chart_data = df.set_index("request_info")["submission_number"]
+    st.line_chart(chart_data)
+
+    # Show the submissions table
+    st.write(df)
+
+    # Only show Download Button if there are entries
+    if not df.empty:
+        import io
+        csv_buffer = io.StringIO()
+        df.to_csv(csv_buffer, index=False)
+        st.download_button(
+            label="📥 Download Submission History as CSV",
+            data=csv_buffer.getvalue(),
+            file_name="submission_history.csv",
+            mime="text/csv"
+        )
 
 # Buttons
 st.title("Choose a Collection to Add to Cart")

@@ -1,19 +1,19 @@
 import streamlit as st
 import os
-import pandas as pd
 from dotenv import load_dotenv
-
-if "user_submissions" not in st.session_state:
-    st.session_state.user_submissions = []
+import parse_book_entries
 
 st.set_page_config(page_title="AI Book Boss", layout="wide")
+
+
 
 # Load environment variables
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Dummy book database
-COLLECTION = [{"Title": "Sample Collection"}]
+COLLECTION = parse_book_entries.parse_book_entries("data/book_entries.txt")
+title_set = {col["collection"] for col in COLLECTION}
 BOOKS = [{"title": "Sample Book", "grade": "5", "description": "A sample book about innovation and creativity."}]
 
 # Only load LangChain if API Key is available
@@ -72,9 +72,7 @@ subject = st.selectbox(
 )
 
 theme = st.text_input("Enter Theme (e.g., Innovation)")
-
-# Buttons
-if st.button("Generate Book List"):
+if st.button("Find Collection"):
     if not OPENAI_API_KEY:
         st.error("OpenAI API key not found. Cannot generate book list.")
     else:
@@ -115,9 +113,9 @@ if st.button("Generate Book List"):
             "theme": theme,
             "submission_number": len(st.session_state.user_submissions) + 1
         })
-
-
-
+if "user_submissions" not in st.session_state:
+    st.session_state.user_submissions = []
+    
 if st.session_state.user_submissions:
     # Clear Submissions Button
     if st.button("🧹 Clear Submission History"):
@@ -126,9 +124,15 @@ if st.session_state.user_submissions:
 
     df = pd.DataFrame(st.session_state.user_submissions)
 
-    # Show Line Graph
-    st.subheader("📈 Submissions Over Time")
-    st.line_chart(df["submission_number"])
+    # Create a combined column "Grade - Subject - Theme" to better label submissions
+    df["request_info"] = df["grade"] + " | " + df["subject"] + " | " + df["theme"]
+
+    # Set request_info as X-axis and submission number as Y-axis
+    st.subheader("📈 Submission Requests Over Time")
+    chart_data = df.set_index("request_info")["submission_number"]
+    st.line_chart(chart_data)
+
+    # Show the submissions table
     st.write(df)
 
     # Only show Download Button if there are entries
@@ -143,27 +147,43 @@ if st.session_state.user_submissions:
             mime="text/csv"
         )
 
-# Buy Collection Section
-st.title("🛒 Book Collection Purchase")
+# Buttons
+st.title("Choose a Collection to Add to Cart")
 
-if st.button("Buy a Book Collection"):
-    selected_collection = st.selectbox("Which collection would you like to purchase?", [col["Title"] for col in COLLECTION])
-    st.success(f"Collection selected: {selected_collection}")
+# --- Replace your dummy COLLECTION list ---
+# Here's a better structured COLLECTION list (you can expand it based on what you shared before):
 
-# Find Books by Keyword Section
-st.title("🔍 Book Finder by Keyword")
+# Initialize session state for the cart
+if "cart" not in st.session_state:
+    st.session_state.cart = []
 
-keyword = st.text_input("Enter a keyword to search book descriptions:")
+# Step 1: User selects collection
+selected_collection_title = st.selectbox(
+    "Select a Collection:",
+    [col for col in title_set]
+)
 
-if keyword:
-    st.subheader(f"Search Results for '{keyword}':")
-    results = []
-    for book in BOOKS:
-        if keyword.lower() in book["description"].lower():
-            results.append(book)
+# Step 2: Find the selected collection's available grades
+available_grades = [col["grade"] for col in COLLECTION if col["collection"] == selected_collection_title]
 
-    if results:
-        for book in results:
-            st.write(f"- {book['title']} ({book['grade']} Grade)")
-    else:
-        st.warning("No books matched your keyword.")
+# Step 3: User selects grade from available grades
+selected_grade = st.selectbox(
+    "Select a Grade Level:",
+    available_grades
+)
+
+# Step 4: Add to Cart
+if st.button("Add to Cart"):
+    st.session_state.cart.append({
+        "Collection": selected_collection_title,
+        "Grade": selected_grade
+    })
+    st.success(f"Added {selected_collection_title} - {selected_grade} to your cart!")
+
+# Step 5: View Cart
+if st.session_state.cart:
+    st.subheader("🛒 Your Cart:")
+    for item in st.session_state.cart:
+        st.write(f"- {item['Collection']} ({item['Grade']})")
+else:
+    st.info("Your cart is empty.")

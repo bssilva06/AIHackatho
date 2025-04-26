@@ -24,6 +24,9 @@ def parse_book_entries(file_path):
         elif line.startswith("Description:"):
             current_collection["description"] = line.replace("Description:", "").strip()
         
+        elif line.startswith("Your Price:"):
+            current_collection["price"] = line.replace("Your Price:", "").strip()
+        
         elif line == "Book Titles:":
             reading_books = True
         

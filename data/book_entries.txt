@@ -1255,7 +1255,7 @@ Book Titles:
 - Just Gus
 - Saint Louis Armstrong Beach
 ---
-Collection: Core Knowledge Sequence — Kindergarten
+Collection: Core Knowledge Sequence 
 Grade: Kindergarten
 List Price: $707.05
 Your Price: $485.00
@@ -1277,7 +1277,7 @@ Book Titles:
 - Tia Teaches the World
 - A Ticket Around the World
 ---
-Collection: Core Knowledge Sequence — Grade 1
+Collection: Core Knowledge Sequence 
 Grade: Grade 1
 List Price: $696.70
 Your Price: $485.00
@@ -1302,7 +1302,7 @@ Book Titles:
 - The Smart Cookie
 - Two Zebras
 ---
-Collection: Core Knowledge Sequence — Grade 2
+Collection: Core Knowledge Sequence 
 Grade: Grade 2
 List Price: $726.45
 Your Price: $515.00
@@ -1326,7 +1326,7 @@ Book Titles:
 - Standing on Her Shoulders
 - You Are a Star, Ruth Bader Ginsburg
 ---
-Collection: Core Knowledge Sequence — Grade 3
+Collection: Core Knowledge Sequence 
 Grade: Grade 3
 List Price: $746.75
 Your Price: $515.00
@@ -1354,7 +1354,7 @@ Book Titles:
 - You Are a Story
 - If You Were Alone
 ---
-Collection: Core Knowledge Sequence — Grade 4
+Collection: Core Knowledge Sequence 
 Grade: Grade 4
 List Price: $428.82
 Your Price: $295.00
@@ -1380,7 +1380,7 @@ Book Titles:
 - Who Produce Pearls: An Anthem for Asian America
 - Who is Helman?
 ---
-Collection: Core Knowledge Sequence — Grade 5
+Collection: Core Knowledge Sequence 
 Grade: Grade 5
 List Price: $433.82
 Your Price: $295.00
@@ -1407,7 +1407,7 @@ Book Titles:
 - The Great Migration
 - Building an Orchestra of Hope
 ---
-Collection: C3 Framework for Social Studies — Kindergarten
+Collection: C3 Framework for Social Studies 
 Grade: Kindergarten
 List Price: $335.32
 Your Price: $235.00
@@ -1433,7 +1433,7 @@ Book Titles:
 - We March
 - The World of Flags
 ---
-Collection: C3 Framework for Social Studies — Grade 1
+Collection: C3 Framework for Social Studies 
 Grade: Grade 1
 List Price: $345.25
 Your Price: $235.00

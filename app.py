@@ -59,7 +59,7 @@ st.write("This is a digital assistant that acts like a genius librarian meets a 
 # User Inputs
 grade = st.selectbox(
     "Select Grade Level:",
-    ["Kindergarten", "1st Grade", "2nd Grade", "3rd Grade", "4th Grade", "5th Grade"]
+    ["K - 2", "3 - 5", "6 - 8", "9 - 12"]
 )
 
 subject = st.selectbox(
@@ -115,7 +115,7 @@ if st.button("Find Collection"):
         })
 if "user_submissions" not in st.session_state:
     st.session_state.user_submissions = []
-    
+
 if st.session_state.user_submissions:
     # Clear Submissions Button
     if st.button("🧹 Clear Submission History"):

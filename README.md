@@ -35,3 +35,5 @@ Built in **Streamlit** using **LangChain** and **OpenAI**, it empowers teachers,
 - 🛒 **Ordering Links**: Easy access to find or purchase books online.
 
 ---
+
+

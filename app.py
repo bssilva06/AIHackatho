@@ -1,6 +1,10 @@
 import streamlit as st
 import os
+import pandas as pd
 from dotenv import load_dotenv
+
+if "user_submissions" not in st.session_state:
+    st.session_state.user_submissions = []
 
 st.set_page_config(page_title="AI Book Boss", layout="wide")
 
@@ -86,6 +90,38 @@ if st.button("Generate Book List"):
         st.write(f"Create a lesson using books about {theme} for {grade} students focusing on {subject} concepts.")
 
         st.info(f"Search Saved: Grade={grade}, Subject={subject}, Theme={theme}")
+        # Save user input into session state
+        st.session_state.user_submissions.append({
+            "grade": grade,
+            "subject": subject,
+            "theme": theme,
+            "submission_number": len(st.session_state.user_submissions) + 1
+        })
+
+if st.session_state.user_submissions:
+    # Clear Submissions Button
+    if st.button("🧹 Clear Submission History"):
+        st.session_state.user_submissions = []
+        st.success("Submission history cleared! 🚀")
+
+    df = pd.DataFrame(st.session_state.user_submissions)
+
+    # Show Line Graph
+    st.subheader("📈 Submissions Over Time")
+    st.line_chart(df["submission_number"])
+    st.write(df)
+
+    # Only show Download Button if there are entries
+    if not df.empty:
+        import io
+        csv_buffer = io.StringIO()
+        df.to_csv(csv_buffer, index=False)
+        st.download_button(
+            label="📥 Download Submission History as CSV",
+            data=csv_buffer.getvalue(),
+            file_name="submission_history.csv",
+            mime="text/csv"
+        )
 
 # Buy Collection Section
 st.title("🛒 Book Collection Purchase")

@@ -1,44 +1,61 @@
 def parse_book_entries(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
+    """
+    Returns a list like:
+    [
+        {
+            "collection": "Culturally Responsive Collections — Multicultural Edition",
+            "grades": {
+                "PreK":         "$275.00",
+                "Kindergarten": "$275.00",
+                "Grade 1":      "$275.00",
+                ...
+            }
+        },
+        {
+            "collection": "Optimistic Library",
+            "grades": {
+                "Kindergarten": "$250.00",
+                "Grade 1":      "$270.00",
+                "Grade 2":      "$270.00",
+                ...
+            }
+        },
+        ...
+    ]
+    """
+    collections = {}          # key = collection name, value = {"collection": name, "grades": {}}
+
+    with open(file_path, "r", encoding="utf-8") as f:
         lines = f.readlines()
 
-    collections = []
-    current_collection = {}
-    current_books = []
-    reading_books = False
+    current_name   = None     # collection name we’re inside
+    current_grade  = None     # last "Grade:" seen
 
-    for line in lines:
-        line = line.strip()
+    for raw in lines:
+        line = raw.strip()
 
+        # ---------- new collection block ----------
         if line.startswith("Collection:"):
-            if current_collection:
-                current_collection["books"] = current_books
-                collections.append(current_collection)
-                current_books = []
+            current_name = line.replace("Collection:", "").strip()
+            # create the entry if we haven’t seen this collection before
+            if current_name not in collections:
+                collections[current_name] = {
+                    "collection": current_name,
+                    "grades": {}
+                }
+            current_grade = None
 
-            current_collection = {"collection": line.replace("Collection:", "").strip()}
-        
+        # ---------- grade ----------
         elif line.startswith("Grade:"):
-            current_collection["grade"] = line.replace("Grade:", "").strip()
-        
-        elif line.startswith("Description:"):
-            current_collection["description"] = line.replace("Description:", "").strip()
-        
-        elif line.startswith("Your Price:"):
-            current_collection["price"] = line.replace("Your Price:", "").strip()
-        
-        elif line == "Book Titles:":
-            reading_books = True
-        
-        elif reading_books:
-            if line.startswith("- "):
-                current_books.append(line[2:].strip())
-            elif line == "---":
-                reading_books = False
+            current_grade = line.replace("Grade:", "").strip()
 
-    # Add last collection
-    if current_collection:
-        current_collection["books"] = current_books
-        collections.append(current_collection)
+        # ---------- price ----------
+        elif line.startswith("Your Price:") and current_name and current_grade:
+            price = line.replace("Your Price:", "").strip()
+            collections[current_name]["grades"][current_grade] = price
+            current_grade = None   # reset until we see next Grade:
 
-    return collections
+        # (you can keep descriptions/books if you ever need them)
+
+    # convert dict → list for easy iteration
+    return list(collections.values())

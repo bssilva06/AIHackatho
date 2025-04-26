@@ -1,10 +1,13 @@
 import streamlit as st
 import os
 import pandas as pd
+import io
 from dotenv import load_dotenv
 import parse_book_entries
 
-st.set_page_config(page_title="Scholastic Nest", layout="wide")
+st.set_page_config(page_title="AI Book Boss", layout="wide")
+
+
 
 # Load environment variables
 load_dotenv()
@@ -30,12 +33,6 @@ if OPENAI_API_KEY:
     import re
     from filters import grade_in_page
 
-
-
-    
-
-        
-
     @st.cache_resource
     def load_books():
         with open("data/book_entries.txt", "r", encoding="utf-8") as f:
@@ -48,7 +45,7 @@ if OPENAI_API_KEY:
 
     retriever = load_books()
 else:
-    st.warning("OpenAI API key not found. AI features are disabled. You can still develop the app layout!")
+    st.warning("⚠️ OpenAI API key not found. AI features are disabled. You can still develop the app layout!")
 
 # --- Streamlit Frontend ---
 
@@ -62,15 +59,25 @@ grade = st.selectbox(
 )
 
 subject = st.text_input("Enter Subject (e.g., Reading, Math, Social Studies)")
-
-
 theme = st.text_input("Enter Theme (e.g., Innovation)")
+
+# ✅ Always initialize submission state
+if "user_submissions" not in st.session_state:
+    st.session_state.user_submissions = []
+
+# ✅ Always initialize generated book list
+if "generated_book_list" not in st.session_state:
+    st.session_state.generated_book_list = None
 
 if st.button("Find Collection"):
     if not OPENAI_API_KEY:
         st.error("OpenAI API key not found. Cannot generate book list.")
     else:
-        st.success(f"Generated book list for Grade {grade}, Subject: {subject}, Theme: {theme}")
+        if not subject or not theme:
+            st.error("⚠️ Please enter both a subject and a theme before searching.")
+            st.stop()
+
+        st.success(f"Searching for Grade {grade}, Subject: {subject}, Theme: {theme}...")
 
         # ✅ First, try strict matching
         strict_query = (
@@ -79,17 +86,13 @@ if st.button("Find Collection"):
         )
         strict_response = get_response(strict_query, retriever)
 
-        # st.write("DEBUG RESPONSE:")
-        # st.write(strict_response)
-
-        st.subheader("Matching Collections:")
+        st.subheader("📚 Matching Collections:")
 
         if strict_response and "i don't know" in strict_response.lower():
-            # ❌ If AI says "I don't know"
             st.error("Sorry, no collections found matching that grade, subject, and theme. Please try broader keywords.")
+            st.session_state.generated_book_list = None
         elif strict_response and strict_response.strip():
-            # ✅ Good strict match
-            st.write(strict_response)
+            st.session_state.generated_book_list = strict_response
         else:
             # Fallback broad search
             st.warning("No exact match found! Searching more broadly...")
@@ -102,48 +105,69 @@ if st.button("Find Collection"):
 
             if broad_response and "i don't know" in broad_response.lower():
                 st.error("Sorry, no collections found even after broad search. Please try different keywords.")
+                st.session_state.generated_book_list = None
             elif broad_response and broad_response.strip():
-                st.write(broad_response)
+                st.session_state.generated_book_list = broad_response
             else:
                 st.error("No results found. Please try again later.")
+                st.session_state.generated_book_list = None
 
+        # ✅ Always save the submission, whether strict or broad
+        st.session_state.user_submissions.append({
+            "grade": grade,
+            "subject": subject,
+            "theme": theme,
+            "submission_number": len(st.session_state.user_submissions) + 1
+        })
 
+        # ✅ Force Streamlit to rerun and refresh
+        st.rerun()
+
+# ✅ Show generated book list
+if st.session_state.generated_book_list:
+    st.subheader("📚 Last Generated Book List:")
+    st.write(st.session_state.generated_book_list)
+
+# ✅ Submission Graph
 st.title("📈 Submission Request History")
 
-if "user_submissions" not in st.session_state:
+if st.button("🧹 Clear Submission History"):
     st.session_state.user_submissions = []
+    st.success("Submission history cleared!")
 
 # Submission History
 if st.session_state.user_submissions:
+    # Clear Submissions Button
     if st.button("🧹 Clear Submission History"):
         st.session_state.user_submissions = []
         st.success("Submission history cleared!")
 
     df = pd.DataFrame(st.session_state.user_submissions)
-    df["request_info"] = df["grade"] + " | " + df["subject"] + " | " + df["theme"]
 
-    # Set request_info as X-axis and submission number as Y-axis
-    st.subheader("Submission Requests Over Time")
-    chart_data = df.set_index("request_info")["submission_number"]
-    st.line_chart(chart_data)
+    # Count most searched themes
+    theme_counts = df["theme"].value_counts()
 
-    # Show the submissions table
-    st.write(df)
+    # Bar Chart
+    st.subheader("🔍 Most Searched Topics (Themes)")
+    st.bar_chart(theme_counts)
 
-    # Only show Download Button if there are entries
-    if not df.empty:
-        import io
-        csv_buffer = io.StringIO()
-        df.to_csv(csv_buffer, index=False)
-        st.download_button(
-            label="Download Submission History as CSV",
-            data=csv_buffer.getvalue(),
-            file_name="submission_history.csv",
-            mime="text/csv"
-        )
+    # Submissions Table
+    st.subheader("📋 Submission History Table")
+    st.dataframe(df)
 
-# --- Cart Section ---
+    # Download Button
+    csv_buffer = io.StringIO()
+    df.to_csv(csv_buffer, index=False)
+    st.download_button(
+        label="📥 Download Submission History as CSV",
+        data=csv_buffer.getvalue(),
+        file_name="submission_history.csv",
+        mime="text/csv"
+    )
+else:
+    st.info("No submissions yet. Try finding a collection first!")
 
+# Buttons
 st.title("Build Your Cart")
 
 collection_names = [c["collection"] for c in COLLECTION]
@@ -152,10 +176,10 @@ chosen_name = st.selectbox("Select a Collection:", collection_names)
 chosen_col = next(c for c in COLLECTION if c["collection"] == chosen_name)
 grades_dict = chosen_col["grades"]
 
-grade_price_labels = [f"{g} - {p}" for g, p in grades_dict.items()]
+grade_price_labels = [f"{g} – {p}" for g, p in grades_dict.items()]
 chosen_label = st.selectbox("Select Grade & Price:", grade_price_labels)
 
-grade_selected, price_selected = chosen_label.split(" - ")
+grade_selected, price_selected = chosen_label.split(" – ")
 
 st.markdown(f"**Selected:** {grade_selected}   |   **Price:** {price_selected}")
 
@@ -170,9 +194,8 @@ if st.button("Add to Cart"):
 st.subheader("Current Cart")
 
 if st.session_state.cart:
-    st.subheader("🛒 Your Cart:")
     for item in st.session_state.cart:
-        st.write(f"{item['Collection']} ({item['Grade']}) {item['Price']}")
+        st.write(f"- {item['Collection']} ({item['Grade']}) — {item['Price']}")
 else:
     st.info("Cart is empty.")
 
@@ -182,8 +205,8 @@ def _price_to_float(price_str):
     return float(price_str.replace("$", "").replace(",", "").strip())
 
 cart_total = sum(_price_to_float(it["Price"]) for it in st.session_state.cart)
-st.markdown(f"**Cart Total**: ${cart_total}")
+st.markdown(f"**Cart Total:** ${cart_total}")
 
-if st.session_state.cart and st.button("Checkout"):
-    st.success(f"Thank you! Your payment of **${cart_total:,.2f}** was processed!")
+if st.session_state.cart and st.button("✅ Checkout"):
+    st.success(f"Thank you! Your payment of **${cart_total:,.2f}** was processed! 🎉")
     st.session_state.cart = []

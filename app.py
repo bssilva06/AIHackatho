@@ -74,7 +74,7 @@ subject = st.selectbox(
 theme = st.text_input("Enter Theme (e.g., Innovation)")
 
 # Buttons
-if st.button("Generate Book List"):
+if st.button("Find Collection"):
     if not OPENAI_API_KEY:
         st.error("OpenAI API key not found. Cannot generate book list.")
     else:
@@ -106,9 +106,15 @@ if st.session_state.user_submissions:
 
     df = pd.DataFrame(st.session_state.user_submissions)
 
-    # Show Line Graph
-    st.subheader("📈 Submissions Over Time")
-    st.line_chart(df["submission_number"])
+    # Create a combined column "Grade - Subject - Theme" to better label submissions
+    df["request_info"] = df["grade"] + " | " + df["subject"] + " | " + df["theme"]
+
+    # Set request_info as X-axis and submission number as Y-axis
+    st.subheader("📈 Submission Requests Over Time")
+    chart_data = df.set_index("request_info")["submission_number"]
+    st.line_chart(chart_data)
+
+    # Show the submissions table
     st.write(df)
 
     # Only show Download Button if there are entries

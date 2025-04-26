@@ -1,15 +1,19 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
+import parse_book_entries
 
 st.set_page_config(page_title="AI Book Boss", layout="wide")
+
+
 
 # Load environment variables
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Dummy book database
-COLLECTION = [{"Title": "Sample Collection"}]
+COLLECTION = parse_book_entries.parse_book_entries("data/book_entries.txt")
+title_set = {col["collection"] for col in COLLECTION}
 BOOKS = [{"title": "Sample Book", "grade": "5", "description": "A sample book about innovation and creativity."}]
 
 # Only load LangChain if API Key is available
@@ -70,44 +74,42 @@ subject = st.selectbox(
 theme = st.text_input("Enter Theme (e.g., Innovation)")
 
 # Buttons
-if st.button("Generate Book List"):
-    if not OPENAI_API_KEY:
-        st.error("OpenAI API key not found. Cannot generate book list.")
-    else:
-        st.success(f"Generated book list for Grade {grade}, Subject: {subject}, Theme: {theme}")
+st.title("Choose a Collection to Add to Cart")
 
-        query = f"Find books for {grade} students about {theme} in {subject}."
-        response = get_response(query, retriever)
+# --- Replace your dummy COLLECTION list ---
+# Here's a better structured COLLECTION list (you can expand it based on what you shared before):
 
-        st.subheader("📚 Book List Found:")
-        st.write(response)
+# Initialize session state for the cart
+if "cart" not in st.session_state:
+    st.session_state.cart = []
 
-        st.subheader("📚 AI-Generated Lesson Plan Idea:")
-        st.write(f"Create a lesson using books about {theme} for {grade} students focusing on {subject} concepts.")
+# Step 1: User selects collection
+selected_collection_title = st.selectbox(
+    "Select a Collection:",
+    [col for col in title_set]
+)
 
-        st.info(f"Search Saved: Grade={grade}, Subject={subject}, Theme={theme}")
+# Step 2: Find the selected collection's available grades
+available_grades = [col["grade"] for col in COLLECTION if col["collection"] == selected_collection_title]
 
-# Buy Collection Section
-st.title("🛒 Book Collection Purchase")
+# Step 3: User selects grade from available grades
+selected_grade = st.selectbox(
+    "Select a Grade Level:",
+    available_grades
+)
 
-if st.button("Buy a Book Collection"):
-    selected_collection = st.selectbox("Which collection would you like to purchase?", [col["Title"] for col in COLLECTION])
-    st.success(f"Collection selected: {selected_collection}")
+# Step 4: Add to Cart
+if st.button("Add to Cart"):
+    st.session_state.cart.append({
+        "Collection": selected_collection_title,
+        "Grade": selected_grade
+    })
+    st.success(f"Added {selected_collection_title} - {selected_grade} to your cart!")
 
-# Find Books by Keyword Section
-st.title("🔍 Book Finder by Keyword")
-
-keyword = st.text_input("Enter a keyword to search book descriptions:")
-
-if keyword:
-    st.subheader(f"Search Results for '{keyword}':")
-    results = []
-    for book in BOOKS:
-        if keyword.lower() in book["description"].lower():
-            results.append(book)
-
-    if results:
-        for book in results:
-            st.write(f"- {book['title']} ({book['grade']} Grade)")
-    else:
-        st.warning("No books matched your keyword.")
+# Step 5: View Cart
+if st.session_state.cart:
+    st.subheader("🛒 Your Cart:")
+    for item in st.session_state.cart:
+        st.write(f"- {item['Collection']} ({item['Grade']})")
+else:
+    st.info("Your cart is empty.")

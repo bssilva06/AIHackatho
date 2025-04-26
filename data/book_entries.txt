@@ -70,7 +70,7 @@ Book Titles:
 - El violín de Ada
 ---
 Collection: Ready-To-Go en español
-Grade: Grade 4
+Grade: 4
 Description: A curated collection of 50 Spanish and bilingual books designed to build literacy skills and reading confidence for Grade 4 Spanish-speaking students.
 
 Book Titles:

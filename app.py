@@ -57,11 +57,11 @@ if OPENAI_API_KEY:
     retriever = load_books()
 
 else:
-    st.warning("⚠️ OpenAI API key not found. AI features are disabled. You can still develop the app layout!")
+    st.warning("OpenAI API key not found. AI features are disabled. You can still develop the app layout!")
 
 # --- Streamlit Frontend ---
 
-st.title("📚 AI Book Boss")
+st.title("AI Book Boss")
 st.write("This is a digital assistant that acts like a genius librarian meets a curriculum builder.")
 
 # User Inputs
@@ -90,11 +90,11 @@ if st.button("Find Collection"):
         # st.write("DEBUG RESPONSE:")
         # st.write(strict_response)
 
-        st.subheader("📚 Matching Collections:")
+        st.subheader("Matching Collections:")
 
         if strict_response and "i don't know" in strict_response.lower():
             # ❌ If AI says "I don't know"
-            st.error("❌ Sorry, no collections found matching that grade, subject, and theme. Please try broader keywords.")
+            st.error("Sorry, no collections found matching that grade, subject, and theme. Please try broader keywords.")
         elif strict_response and strict_response.strip():
             # ✅ Good strict match
             st.write(strict_response)
@@ -109,13 +109,15 @@ if st.button("Find Collection"):
             broad_response = get_response(broad_query, retriever)
 
             if broad_response and "i don't know" in broad_response.lower():
-                st.error("❌ Sorry, no collections found even after broad search. Please try different keywords.")
+                st.error("Sorry, no collections found even after broad search. Please try different keywords.")
             elif broad_response and broad_response.strip():
                 st.write(broad_response)
             else:
-                st.error("❌ No results found. Please try again later.")
+                st.error("No results found. Please try again later.")
 
-        
+
+st.title("📈 Submission Request History")
+
 if "user_submissions" not in st.session_state:
     st.session_state.user_submissions = []
 
@@ -123,7 +125,7 @@ if st.session_state.user_submissions:
     # Clear Submissions Button
     if st.button("🧹 Clear Submission History"):
         st.session_state.user_submissions = []
-        st.success("Submission history cleared! 🚀")
+        st.success("Submission history cleared!")
 
     df = pd.DataFrame(st.session_state.user_submissions)
 
@@ -131,7 +133,7 @@ if st.session_state.user_submissions:
     df["request_info"] = df["grade"] + " | " + df["subject"] + " | " + df["theme"]
 
     # Set request_info as X-axis and submission number as Y-axis
-    st.subheader("📈 Submission Requests Over Time")
+    st.subheader("Submission Requests Over Time")
     chart_data = df.set_index("request_info")["submission_number"]
     st.line_chart(chart_data)
 
@@ -144,7 +146,7 @@ if st.session_state.user_submissions:
         csv_buffer = io.StringIO()
         df.to_csv(csv_buffer, index=False)
         st.download_button(
-            label="📥 Download Submission History as CSV",
+            label="Download Submission History as CSV",
             data=csv_buffer.getvalue(),
             file_name="submission_history.csv",
             mime="text/csv"
@@ -185,7 +187,7 @@ if st.button("Add to Cart"):
 
 # Step 5: View Cart
 if st.session_state.cart:
-    st.subheader("🛒 Your Cart:")
+    st.subheader("Your Cart:")
     for item in st.session_state.cart:
         st.write(f"- {item['Collection']} ({item['Grade']})")
 else:

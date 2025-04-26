@@ -1,5 +1,7 @@
 Collection: Ready-To-Go en español
 Grade: Grade 1
+List Price: $603.60
+Your Price: $450.00
 Description: A curated collection of 100 Spanish and bilingual books designed to build literacy skills and reading confidence for Grade 1 Spanish-speaking students.
 
 Book Titles:
@@ -31,6 +33,8 @@ Book Titles:
 ---
 Collection: Ready-To-Go en español
 Grade: Grade 2
+List Price: $637.44
+Your Price: $465.00
 Description: A curated collection of 100 Spanish and bilingual books designed to build literacy skills and reading confidence for Grade 2 Spanish-speaking students.
 
 Book Titles:
@@ -52,6 +56,8 @@ Book Titles:
 ---
 Collection: Ready-To-Go en español
 Grade: Grade 3
+List Price: $342.58
+Your Price: $250.00
 Description: A curated collection of 50 Spanish and bilingual books designed to build literacy skills and reading confidence for Grade 3 Spanish-speaking students.
 
 Book Titles:
@@ -71,6 +77,7 @@ Book Titles:
 ---
 Collection: Ready-To-Go en español
 Grade: 4
+Your Price: $275.00
 Description: A curated collection of 50 Spanish and bilingual books designed to build literacy skills and reading confidence for Grade 4 Spanish-speaking students.
 
 Book Titles:
@@ -93,6 +100,7 @@ Book Titles:
 ---
 Collection: Culturally Responsive Collections — Disability and Neurodiversity
 Grade: K-1–2
+Your Price: $175.00
 Description: A curated collection of 30 books (15 titles, 2 copies each) that authentically represent disabled and neurodivergent characters, designed to cultivate empathy, inclusivity, and self-acceptance among K–2 students.
 
 Book Titles:
@@ -114,6 +122,7 @@ Book Titles:
 ---
 Collection: Culturally Responsive Collections — Disability and Neurodiversity
 Grade: Grades 3–5
+Your Price: $250.00
 Description: A curated collection of 40 books (20 titles, 2 copies each) that authentically represent disabled and neurodivergent characters, fostering empathy, self-acceptance, and inclusivity among students in Grades 3–5.
 
 Book Titles:
@@ -134,6 +143,7 @@ Book Titles:
 ---
 Collection: Culturally Responsive Collections — Disability and Neurodiversity
 Grade: Grades 6–8
+Your Price: $195.00
 Description: A curated collection of 30 books (15 titles, 2 copies each) that authentically represent disabled and neurodivergent characters, supporting empathy, inclusivity, and self-acceptance for middle school students.
 
 Book Titles:
@@ -155,6 +165,7 @@ Book Titles:
 ---
 Collection: Culturally Responsive Collections — Disability and Neurodiversity
 Grade: Grades 9–12
+Your Price: $199.00
 Description: A curated collection of 24 books (12 titles, 2 copies each) that authentically represent disabled and neurodivergent characters, supporting empathy, inclusivity, and self-acceptance for high school students.
 
 Book Titles:

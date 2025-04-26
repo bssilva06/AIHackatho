@@ -4,7 +4,7 @@ import pandas as pd
 from dotenv import load_dotenv
 import parse_book_entries
 
-st.set_page_config(page_title="AI Book Boss", layout="wide")
+st.set_page_config(page_title="Scholastic Nest", layout="wide")
 
 # Load environment variables
 load_dotenv()
@@ -27,6 +27,14 @@ if OPENAI_API_KEY:
     from langchain.embeddings import OpenAIEmbeddings
     from langchain.vectorstores import FAISS
     from langchain.chains import RetrievalQA
+    import re
+    from filters import grade_in_page
+
+
+
+    
+
+        
 
     @st.cache_resource
     def load_books():
@@ -40,53 +48,70 @@ if OPENAI_API_KEY:
 
     retriever = load_books()
 else:
-    st.warning("⚠️ OpenAI API key not found. AI features are disabled.")
+    st.warning("OpenAI API key not found. AI features are disabled. You can still develop the app layout!")
 
 # --- Streamlit Frontend ---
 
-st.title("📚 AI Book Boss")
-st.write("Your digital librarian and curriculum builder.")
+st.title("Scholastic Nest")
+st.write("This is a digital assistant that acts like a genius librarian meets a curriculum builder.")
 
-# AI Search Form
-grade = st.selectbox("Select Grade Level:", ["K - 2", "3 - 5", "6 - 8", "9 - 12"])
-subject = st.selectbox("Select Subject:", [
-    "Reading", "Writing", "Math", "Science", "Social Studies", "Phonics",
-    "STEAM", "STEM", "Art", "Technology", "Health",
-    "Diversity and Cultural Studies", "Social-Emotional Learning"
-])
+# User Inputs
+grade = st.selectbox(
+    "Select Grade Level:",
+    ["K - 2", "3 - 5", "6 - 8", "9 - 12"]
+)
+
+subject = st.text_input("Enter Subject (e.g., Reading, Math, Social Studies)")
+
+
 theme = st.text_input("Enter Theme (e.g., Innovation)")
 
 if st.button("Find Collection"):
     if not OPENAI_API_KEY:
         st.error("OpenAI API key not found. Cannot generate book list.")
     else:
-        query = (
-            f"Find reading collections suitable for {grade} students. "
-            f"Theme: '{theme}', Subject: '{subject}'. "
-            "Return the collection name, a short description, and the list of books."
+        st.success(f"Generated book list for Grade {grade}, Subject: {subject}, Theme: {theme}")
+
+        # ✅ First, try strict matching
+        strict_query = (
+            f"Find book collections specifically for {grade} students about '{theme}' in the subject '{subject}'. "
+            f"Return the collection name, description, and list of books."
         )
-        response = retriever.invoke(query)
-        st.subheader("📚 Matching Collections:")
+        strict_response = get_response(strict_query, retriever)
 
-        found = False
-        for r in response:
-            if grade.lower() in r.page_content.lower():
-                found = True
-                st.markdown("---")
-                st.write(r.page_content)
+        # st.write("DEBUG RESPONSE:")
+        # st.write(strict_response)
 
-        if not found:
-            st.warning("No collections exactly match that grade.")
+        st.subheader("Matching Collections:")
 
-        st.subheader("📚 Lesson Plan Idea:")
-        st.write(f"Create a lesson using collections about '{theme}' for {grade} students in {subject}.")
-        
-        st.session_state.user_submissions.append({
-            "grade": grade,
-            "subject": subject,
-            "theme": theme,
-            "submission_number": len(st.session_state.user_submissions) + 1
-        })
+        if strict_response and "i don't know" in strict_response.lower():
+            # ❌ If AI says "I don't know"
+            st.error("Sorry, no collections found matching that grade, subject, and theme. Please try broader keywords.")
+        elif strict_response and strict_response.strip():
+            # ✅ Good strict match
+            st.write(strict_response)
+        else:
+            # Fallback broad search
+            st.warning("No exact match found! Searching more broadly...")
+
+            broad_query = (
+                f"Find any book collections related to '{theme}' or '{subject}' for elementary to high school students. "
+                f"Return the collection name, description, and list of books."
+            )
+            broad_response = get_response(broad_query, retriever)
+
+            if broad_response and "i don't know" in broad_response.lower():
+                st.error("Sorry, no collections found even after broad search. Please try different keywords.")
+            elif broad_response and broad_response.strip():
+                st.write(broad_response)
+            else:
+                st.error("No results found. Please try again later.")
+
+
+st.title("📈 Submission Request History")
+
+if "user_submissions" not in st.session_state:
+    st.session_state.user_submissions = []
 
 # Submission History
 if st.session_state.user_submissions:
@@ -96,22 +121,30 @@ if st.session_state.user_submissions:
 
     df = pd.DataFrame(st.session_state.user_submissions)
     df["request_info"] = df["grade"] + " | " + df["subject"] + " | " + df["theme"]
-    
-    st.subheader("📈 Submission Requests Over Time")
-    st.line_chart(df.set_index("request_info")["submission_number"])
+
+    # Set request_info as X-axis and submission number as Y-axis
+    st.subheader("Submission Requests Over Time")
+    chart_data = df.set_index("request_info")["submission_number"]
+    st.line_chart(chart_data)
+
+    # Show the submissions table
     st.write(df)
 
-    csv_buffer = df.to_csv(index=False)
-    st.download_button(
-        label="📥 Download Submission History as CSV",
-        data=csv_buffer,
-        file_name="submission_history.csv",
-        mime="text/csv"
-    )
+    # Only show Download Button if there are entries
+    if not df.empty:
+        import io
+        csv_buffer = io.StringIO()
+        df.to_csv(csv_buffer, index=False)
+        st.download_button(
+            label="Download Submission History as CSV",
+            data=csv_buffer.getvalue(),
+            file_name="submission_history.csv",
+            mime="text/csv"
+        )
 
 # --- Cart Section ---
 
-st.header("🛒 Build Your Cart")
+st.title("Build Your Cart")
 
 collection_names = [c["collection"] for c in COLLECTION]
 chosen_name = st.selectbox("Select a Collection:", collection_names)
@@ -137,6 +170,7 @@ if st.button("Add to Cart"):
 st.subheader("Current Cart")
 
 if st.session_state.cart:
+    st.subheader("🛒 Your Cart:")
     for item in st.session_state.cart:
         st.write(f"{item['Collection']} ({item['Grade']}) {item['Price']}")
 else:

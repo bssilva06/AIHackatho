@@ -24,6 +24,14 @@ if OPENAI_API_KEY:
     from langchain.embeddings import OpenAIEmbeddings
     from langchain.vectorstores import FAISS
     from langchain.chains import RetrievalQA
+    import re
+    from filters import grade_in_page
+
+
+
+    
+
+        
 
     @st.cache_resource
     def load_books():
@@ -62,14 +70,8 @@ grade = st.selectbox(
     ["K - 2", "3 - 5", "6 - 8", "9 - 12"]
 )
 
-subject = st.selectbox(
-    "Select Subject:",
-    [
-        "Reading", "Writing", "Math", "Science", "Social Studies", "Phonics",
-        "STEAM", "STEM", "Art", "Technology", "Health",
-        "Diversity and Cultural Studies", "Social-Emotional Learning"
-    ]
-)
+subject = st.text_input("Enter Subject (e.g., Reading, Math, Social Studies)")
+
 
 theme = st.text_input("Enter Theme (e.g., Innovation)")
 if st.button("Find Collection"):
@@ -78,41 +80,42 @@ if st.button("Find Collection"):
     else:
         st.success(f"Generated book list for Grade {grade}, Subject: {subject}, Theme: {theme}")
 
-        query = (
-            f"Find reading collections suitable for {grade} students. "
-            f"The collections should match the theme '{theme}' and the subject area '{subject}'. "
-            f"Return the collection name, a short description of the collection, and the list of books it includes."
+        # ✅ First, try strict matching
+        strict_query = (
+            f"Find book collections specifically for {grade} students about '{theme}' in the subject '{subject}'. "
+            f"Return the collection name, description, and list of books."
         )
+        strict_response = get_response(strict_query, retriever)
 
-        response = retriever.invoke(query)
+        # st.write("DEBUG RESPONSE:")
+        # st.write(strict_response)
 
         st.subheader("📚 Matching Collections:")
 
-        # ✅ New: Filter collections that match the grade
-        found = False
-        for r in response:
-            page = r.page_content
+        if strict_response and "i don't know" in strict_response.lower():
+            # ❌ If AI says "I don't know"
+            st.error("❌ Sorry, no collections found matching that grade, subject, and theme. Please try broader keywords.")
+        elif strict_response and strict_response.strip():
+            # ✅ Good strict match
+            st.write(strict_response)
+        else:
+            # Fallback broad search
+            st.warning("No exact match found! Searching more broadly...")
 
-            if grade.lower() in page.lower():
-                found = True
-                st.markdown("---")
-                st.write(page)
+            broad_query = (
+                f"Find any book collections related to '{theme}' or '{subject}' for elementary to high school students. "
+                f"Return the collection name, description, and list of books."
+            )
+            broad_response = get_response(broad_query, retriever)
 
-        if not found:
-            st.warning("No collections exactly match that grade. Try a different theme or subject.")
+            if broad_response and "i don't know" in broad_response.lower():
+                st.error("❌ Sorry, no collections found even after broad search. Please try different keywords.")
+            elif broad_response and broad_response.strip():
+                st.write(broad_response)
+            else:
+                st.error("❌ No results found. Please try again later.")
 
-        # ✅ Lesson plan still shows
-        st.subheader("📚 AI-Generated Lesson Plan Idea:")
-        st.write(f"Create a lesson using one or more collections about '{theme}' for {grade} students focusing on {subject} concepts.")
-
-        st.info(f"Search Saved: Grade={grade}, Subject={subject}, Theme={theme}")
-
-        st.session_state.user_submissions.append({
-            "grade": grade,
-            "subject": subject,
-            "theme": theme,
-            "submission_number": len(st.session_state.user_submissions) + 1
-        })
+        
 if "user_submissions" not in st.session_state:
     st.session_state.user_submissions = []
 

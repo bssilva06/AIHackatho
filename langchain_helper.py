@@ -1,11 +1,11 @@
 import os
 from dotenv import load_dotenv
-from langchain_community.llms import OpenAI
+from langchain_openai import OpenAI
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
-from langchain.chains import RetrievalQA
+from langchain.chains import RetrievalQAWithSourcesChain
 
 # Load environment variables
 load_dotenv()
@@ -25,9 +25,12 @@ def load_books():
     return retriever
 
 def get_response(query, retriever):
-    """Run a query through the retrieval QA chain."""
-    qa = RetrievalQA.from_chain_type(
+    """Retrieve answer + source documents."""
+    qa_chain = RetrievalQAWithSourcesChain.from_chain_type(
         llm=OpenAI(temperature=0.2),
-        retriever=retriever
+        chain_type="stuff",
+        retriever=retriever,
+        return_source_documents=True,
     )
-    return qa.run(query)
+
+    return qa_chain.invoke({"question": query})

@@ -1,6 +1,10 @@
 import streamlit as st
 import os
+import pandas as pd
 from dotenv import load_dotenv
+
+if "user_submissions" not in st.session_state:
+    st.session_state.user_submissions = []
 
 st.set_page_config(page_title="AI Book Boss", layout="wide")
 
@@ -76,16 +80,68 @@ if st.button("Generate Book List"):
     else:
         st.success(f"Generated book list for Grade {grade}, Subject: {subject}, Theme: {theme}")
 
-        query = f"Find books for {grade} students about {theme} in {subject}."
-        response = get_response(query, retriever)
+        query = (
+            f"Find reading collections suitable for {grade} students. "
+            f"The collections should match the theme '{theme}' and the subject area '{subject}'. "
+            f"Return the collection name, a short description of the collection, and the list of books it includes."
+        )
 
-        st.subheader("📚 Book List Found:")
-        st.write(response)
+        response = retriever.invoke(query)
 
+        st.subheader("📚 Matching Collections:")
+
+        # ✅ New: Filter collections that match the grade
+        found = False
+        for r in response:
+            page = r.page_content
+
+            if grade.lower() in page.lower():
+                found = True
+                st.markdown("---")
+                st.write(page)
+
+        if not found:
+            st.warning("No collections exactly match that grade. Try a different theme or subject.")
+
+        # ✅ Lesson plan still shows
         st.subheader("📚 AI-Generated Lesson Plan Idea:")
-        st.write(f"Create a lesson using books about {theme} for {grade} students focusing on {subject} concepts.")
+        st.write(f"Create a lesson using one or more collections about '{theme}' for {grade} students focusing on {subject} concepts.")
 
         st.info(f"Search Saved: Grade={grade}, Subject={subject}, Theme={theme}")
+
+        st.session_state.user_submissions.append({
+            "grade": grade,
+            "subject": subject,
+            "theme": theme,
+            "submission_number": len(st.session_state.user_submissions) + 1
+        })
+
+
+
+if st.session_state.user_submissions:
+    # Clear Submissions Button
+    if st.button("🧹 Clear Submission History"):
+        st.session_state.user_submissions = []
+        st.success("Submission history cleared! 🚀")
+
+    df = pd.DataFrame(st.session_state.user_submissions)
+
+    # Show Line Graph
+    st.subheader("📈 Submissions Over Time")
+    st.line_chart(df["submission_number"])
+    st.write(df)
+
+    # Only show Download Button if there are entries
+    if not df.empty:
+        import io
+        csv_buffer = io.StringIO()
+        df.to_csv(csv_buffer, index=False)
+        st.download_button(
+            label="📥 Download Submission History as CSV",
+            data=csv_buffer.getvalue(),
+            file_name="submission_history.csv",
+            mime="text/csv"
+        )
 
 # Buy Collection Section
 st.title("🛒 Book Collection Purchase")

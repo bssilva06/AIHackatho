@@ -1,5 +1,9 @@
 streamlit
 pymupdf
 langchain
+langchain-community
+langchain-openai
 openai
 python-dotenv
+faiss-cpu
+tiktoken

@@ -2,3 +2,4 @@
 search_history.db
 _pycache_/
 *.pyc.DS_Store
+.DS_Store

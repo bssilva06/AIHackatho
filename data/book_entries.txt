@@ -1,0 +1,174 @@
+Collection: Ready-To-Go en español
+Grade: Grade 1
+Description: A curated collection of 100 Spanish and bilingual books designed to build literacy skills and reading confidence for Grade 1 Spanish-speaking students.
+
+Book Titles:
+- Así vamos a la escuela
+- Clifford va a la escuela
+- ¡Despierta, Cangrejito!
+- Un día de nieve
+- ¡Estamos en un libro!
+- Eva ve un fantasma
+- Froggy va a la escuela
+- El fuertecito rojo
+- Goldilocks and the Three Bears / Ricitos de Oro y los tres osos
+- Hola, Hombre Mosca
+- It’s Okay to Be Different / Está bien ser diferente (Parr)
+- Little Red Riding Hood / Caperucita roja
+- El lobo llama a la puerta
+- Lucía la luchadora
+- Lucía la luchadora y el millón de máscaras
+- Mango, abuela y yo
+- Mis amigos del bosque
+- ¡A pasear, Hombre Mosca!
+- Pastel para enemigos
+- La perra de hola y adiós
+- Soñadores
+- Taking a Walk / Caminando
+- ¿Te gusta mi bicicleta?
+- ¿Y si tuvieras ojos de animal?
+- Y siguió lloviendo
+---
+Collection: Ready-To-Go en español
+Grade: Grade 2
+Description: A curated collection of 100 Spanish and bilingual books designed to build literacy skills and reading confidence for Grade 2 Spanish-speaking students.
+
+Book Titles:
+- Alexander y el día terrible, horrible, espantoso, horroroso
+- The Bossy Gallito / El gallo de bodas
+- El coleccionista de palabras
+- El diario de una lombriz
+- Frida (Sp)
+- Hay un hombre mosca en mi sopa
+- Martina una cucarachita muy linda
+- El misterio del arco iris
+- Playing Lotería / El Juego de la Lotería
+- Un sillón para mi mamá
+- Sopa de piedras
+- ¿Y si tuvieras cola de animal?
+- Tiburones
+- Todos mis amigos son planetas
+- ¿Y si tuvieras dientes de animal?
+---
+Collection: Ready-To-Go en español
+Grade: Grade 3
+Description: A curated collection of 50 Spanish and bilingual books designed to build literacy skills and reading confidence for Grade 3 Spanish-speaking students.
+
+Book Titles:
+- Las aventuras del Capitán Calzoncillos
+- Cuando estábamos solos
+- Dos amigos
+- ¡Encubierta!
+- Feliz cumpleaños, Minina Mala
+- La leyenda de Piedra Papel Tijera
+- ¡Lola Levine no es mala!
+- El Sol puede ser la gran cosa
+- Los tipos malos en Misión improbable
+- Rosita y Conchita
+- Los Tipos Malos en Supermalos
+- Unidos o nada
+- El violín de Ada
+---
+Collection: Ready-To-Go en español
+Grade: Grade 4
+Description: A curated collection of 50 Spanish and bilingual books designed to build literacy skills and reading confidence for Grade 4 Spanish-speaking students.
+
+Book Titles:
+- Alma del Mar
+- Doña Flautina Resuelvelotodo
+- ¿Es cierto? El océano
+- Feucho y Pablo
+- Las gallinas de mi abuelo
+- ¡Hay que salvar a Florencia!
+- Los hermanos Mozart: El reino secreto
+- Lety alza su voz
+- Sacagawea (Sp)
+- Saraí y el significado de lo genial
+- Schomburg
+- Side By Side / Lado a lado
+- Sonia Sotomayor (Sp)
+- Titanosaurio
+- Ve lo que dices / See What You Say
+- Volcán
+---
+Collection: Culturally Responsive Collections — Disability and Neurodiversity
+Grade: K–2
+Description: A curated collection of 30 books (15 titles, 2 copies each) that authentically represent disabled and neurodivergent characters, designed to cultivate empathy, inclusivity, and self-acceptance among K–2 students.
+
+Book Titles:
+- The Boy with Big, Big Feelings
+- Butterfly Boy
+- Charlie Makes a Splash!
+- A Day with No Words
+- Hello Goodbye Dog
+- I Talk Like a River
+- Leo and the Octopus
+- Listen, How Evelyn Glennie, a Deaf Girl, Changed Percussion
+- Madeline Finn and the Library Dog
+- My Brother Charlie
+- My Three Best Friends and Me, Zulay
+- My Very Favorite Book in the Whole Wide World
+- Song in the City
+- You Are Enough
+- You Are Loved
+---
+Collection: Culturally Responsive Collections — Disability and Neurodiversity
+Grade: Grades 3–5
+Description: A curated collection of 40 books (20 titles, 2 copies each) that authentically represent disabled and neurodivergent characters, fostering empathy, self-acceptance, and inclusivity among students in Grades 3–5.
+
+Book Titles:
+- Allergic
+- Bat and the Waiting Game
+- A Boy Called Bat
+- BSC Graphix: The Truth About Stacey
+- The Danger Box
+- The Elephant’s New Shoe
+- The Girl Who Thought in Pictures
+- Itzhak, A Boy Who Loved the Violin
+- Just Ask!
+- Not If I Can Help It
+- Smile: Guts
+- Soar
+- The Sound of All Things
+- Stella*
+---
+Collection: Culturally Responsive Collections — Disability and Neurodiversity
+Grade: Grades 6–8
+Description: A curated collection of 30 books (15 titles, 2 copies each) that authentically represent disabled and neurodivergent characters, supporting empathy, inclusivity, and self-acceptance for middle school students.
+
+Book Titles:
+- Air
+- Bouncing Back
+- Braced
+- Can You See Me?
+- El Deafo
+- Deer Run Home
+- Focused
+- Good Different
+- Hello, Universe
+- Hummingbird
+- Insignificant Events in the Life of a Cactus
+- Lucky Broken Girl
+- Paige Not Found
+- Shiny Misfits
+- Speak Up!
+---
+Collection: Culturally Responsive Collections — Disability and Neurodiversity
+Grade: Grades 9–12
+Description: A curated collection of 24 books (12 titles, 2 copies each) that authentically represent disabled and neurodivergent characters, supporting empathy, inclusivity, and self-acceptance for high school students.
+
+Book Titles:
+- At the Speed of Lies
+- Freak the Mighty*
+- Girl, Stolen*
+- Give Me a Sign
+- Hey, Kiddo: Sunshine*
+- Obsessed, A Memoir of My Life with OCD
+- Same But Different, Teen Life on the Autism Express
+- Sixteen Souls*
+- Where We Go From Here*
+- Where You See Yourself
+- The Whispering Dark
+- You, Me, and Our Heartstrings
+---
+

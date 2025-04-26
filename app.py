@@ -1,11 +1,11 @@
 import streamlit as st
 import os
+import pandas as pd
+import io
 from dotenv import load_dotenv
 import parse_book_entries
 
 st.set_page_config(page_title="AI Book Boss", layout="wide")
-
-
 
 # Load environment variables
 load_dotenv()
@@ -14,7 +14,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Dummy book database
 COLLECTION = parse_book_entries.parse_book_entries("data/book_entries.txt")
 title_set = {col["collection"] for col in COLLECTION}
-BOOKS = [{"title": "Sample Book", "grade": "5", "description": "A sample book about innovation and creativity."}]
 
 # Only load LangChain if API Key is available
 if OPENAI_API_KEY:
@@ -26,12 +25,6 @@ if OPENAI_API_KEY:
     from langchain.chains import RetrievalQA
     import re
     from filters import grade_in_page
-
-
-
-    
-
-        
 
     @st.cache_resource
     def load_books():
@@ -55,13 +48,11 @@ if OPENAI_API_KEY:
         return qa.run(query)
 
     retriever = load_books()
-
 else:
-    st.warning("OpenAI API key not found. AI features are disabled. You can still develop the app layout!")
+    st.warning("⚠️ OpenAI API key not found. AI features are disabled. You can still develop the app layout!")
 
 # --- Streamlit Frontend ---
-
-st.title("AI Book Boss")
+st.title("📚 AI Book Boss")
 st.write("This is a digital assistant that acts like a genius librarian meets a curriculum builder.")
 
 # User Inputs
@@ -71,14 +62,25 @@ grade = st.selectbox(
 )
 
 subject = st.text_input("Enter Subject (e.g., Reading, Math, Social Studies)")
-
-
 theme = st.text_input("Enter Theme (e.g., Innovation)")
+
+# ✅ Always initialize submission state
+if "user_submissions" not in st.session_state:
+    st.session_state.user_submissions = []
+
+# ✅ Always initialize generated book list
+if "generated_book_list" not in st.session_state:
+    st.session_state.generated_book_list = None
+
 if st.button("Find Collection"):
     if not OPENAI_API_KEY:
         st.error("OpenAI API key not found. Cannot generate book list.")
     else:
-        st.success(f"Generated book list for Grade {grade}, Subject: {subject}, Theme: {theme}")
+        if not subject or not theme:
+            st.error("⚠️ Please enter both a subject and a theme before searching.")
+            st.stop()
+
+        st.success(f"Searching for Grade {grade}, Subject: {subject}, Theme: {theme}...")
 
         # ✅ First, try strict matching
         strict_query = (
@@ -87,17 +89,13 @@ if st.button("Find Collection"):
         )
         strict_response = get_response(strict_query, retriever)
 
-        # st.write("DEBUG RESPONSE:")
-        # st.write(strict_response)
-
-        st.subheader("Matching Collections:")
+        st.subheader("📚 Matching Collections:")
 
         if strict_response and "i don't know" in strict_response.lower():
-            # ❌ If AI says "I don't know"
             st.error("Sorry, no collections found matching that grade, subject, and theme. Please try broader keywords.")
+            st.session_state.generated_book_list = None
         elif strict_response and strict_response.strip():
-            # ✅ Good strict match
-            st.write(strict_response)
+            st.session_state.generated_book_list = strict_response
         else:
             # Fallback broad search
             st.warning("No exact match found! Searching more broadly...")
@@ -110,84 +108,90 @@ if st.button("Find Collection"):
 
             if broad_response and "i don't know" in broad_response.lower():
                 st.error("Sorry, no collections found even after broad search. Please try different keywords.")
+                st.session_state.generated_book_list = None
             elif broad_response and broad_response.strip():
-                st.write(broad_response)
+                st.session_state.generated_book_list = broad_response
             else:
                 st.error("No results found. Please try again later.")
+                st.session_state.generated_book_list = None
 
+        # ✅ Always save the submission, whether strict or broad
+        st.session_state.user_submissions.append({
+            "grade": grade,
+            "subject": subject,
+            "theme": theme,
+            "submission_number": len(st.session_state.user_submissions) + 1
+        })
 
+        # ✅ Force Streamlit to rerun and refresh
+        st.rerun()
+
+# ✅ Show generated book list
+if st.session_state.generated_book_list:
+    st.subheader("📚 Last Generated Book List:")
+    st.write(st.session_state.generated_book_list)
+
+# ✅ Submission Graph
 st.title("📈 Submission Request History")
 
-if "user_submissions" not in st.session_state:
+if st.button("🧹 Clear Submission History"):
     st.session_state.user_submissions = []
+    st.success("Submission history cleared!")
 
 if st.session_state.user_submissions:
-    # Clear Submissions Button
-    if st.button("🧹 Clear Submission History"):
-        st.session_state.user_submissions = []
-        st.success("Submission history cleared!")
-
     df = pd.DataFrame(st.session_state.user_submissions)
 
-    # Create a combined column "Grade - Subject - Theme" to better label submissions
-    df["request_info"] = df["grade"] + " | " + df["subject"] + " | " + df["theme"]
+    # Count most searched themes
+    theme_counts = df["theme"].value_counts()
 
-    # Set request_info as X-axis and submission number as Y-axis
-    st.subheader("Submission Requests Over Time")
-    chart_data = df.set_index("request_info")["submission_number"]
-    st.line_chart(chart_data)
+    # Bar Chart
+    st.subheader("🔍 Most Searched Topics (Themes)")
+    st.bar_chart(theme_counts)
 
-    # Show the submissions table
-    st.write(df)
+    # Submissions Table
+    st.subheader("📋 Submission History Table")
+    st.dataframe(df)
 
-    # Only show Download Button if there are entries
-    if not df.empty:
-        import io
-        csv_buffer = io.StringIO()
-        df.to_csv(csv_buffer, index=False)
-        st.download_button(
-            label="Download Submission History as CSV",
-            data=csv_buffer.getvalue(),
-            file_name="submission_history.csv",
-            mime="text/csv"
-        )
+    # Download Button
+    csv_buffer = io.StringIO()
+    df.to_csv(csv_buffer, index=False)
+    st.download_button(
+        label="📥 Download Submission History as CSV",
+        data=csv_buffer.getvalue(),
+        file_name="submission_history.csv",
+        mime="text/csv"
+    )
+else:
+    st.info("No submissions yet. Try finding a collection first!")
 
-# Buttons
-st.title("Choose a Collection to Add to Cart")
+# ✅ Shopping Cart Section
+st.title("🛒 Choose a Collection to Add to Cart")
 
-# --- Replace your dummy COLLECTION list ---
-# Here's a better structured COLLECTION list (you can expand it based on what you shared before):
-
-# Initialize session state for the cart
 if "cart" not in st.session_state:
     st.session_state.cart = []
 
-# Step 1: User selects collection
 selected_collection_title = st.selectbox(
     "Select a Collection:",
-    [col for col in title_set]
+    sorted(list(title_set))
 )
 
-# Step 2: Find the selected collection's available grades
 available_grades = [col["grade"] for col in COLLECTION if col["collection"] == selected_collection_title]
 
-# Step 3: User selects grade from available grades
 selected_grade = st.selectbox(
     "Select a Grade Level:",
     available_grades
 )
 
-# Step 4: Add to Cart
 if st.button("Add to Cart"):
     st.session_state.cart.append({
         "Collection": selected_collection_title,
         "Grade": selected_grade
     })
-    st.success(f"Added {selected_collection_title} - {selected_grade} to your cart!")
+    st.success(f"✅ Added {selected_collection_title} ({selected_grade}) to your cart!")
 
-# Step 5: View Cart
+# View Cart
 if st.session_state.cart:
-    st.subheader("Your Cart:")
+    st.subheader("🛒 Your Cart:")
     for item in st.session_state.cart:
         st.write(f"- {item['Collection']} ({item['Grade']})")
 else:

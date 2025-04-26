@@ -1,4 +1,4 @@
 .env
 search_history.db
 _pycache_/
-*.pyc
+*.pyc.DS_Store
